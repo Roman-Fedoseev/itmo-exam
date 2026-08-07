@@ -1,0 +1,49 @@
+# .gitignore
+.env
+.env.local
+*.pem
+*.key
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+dist/
+build/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+.next/
+dist-front/
+
+# IDE / OS
+.idea/
+.vscode/
+.cursor/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Local tooling (не пушим бинарники)
+.tools/
+
+# Локальный inbox для ТЗ на экзамене (не в сдачу)
+inbox/
+
+# Data / artifacts (fixtures/ коммитим — это демо-данные PoC)
+data/
+*.csv
+*.parquet
+*.sqlite
+*.db
+logs/
+tmp/
+.coverage
+htmlcov/
