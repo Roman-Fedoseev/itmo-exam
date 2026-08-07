@@ -14,6 +14,7 @@ class Decision(str, Enum):
     AUTO_REPLY = "auto_reply"  # только safe + high confidence
     SUGGEST = "suggest"  # черновик оператору
     ESCALATE = "escalate"  # человек, без авто-закрытия
+    REJECT_REWRITE = "reject_rewrite"  # токсик/оскорбления → шаблон «переформулируйте»
 
 
 class DraftStatus(str, Enum):
@@ -28,6 +29,10 @@ class TicketIn(BaseModel):
     channel: str = Field(description="chat | email | web | mobile")
     subject: str = ""
     body: str
+    # Явный язык от канала (если есть); иначе эвристика в pipeline
+    locale: Optional[str] = None
+    # Привязка к массовому инциденту (prod: после spike/dedup). Непустой → burst status template.
+    incident_id: Optional[str] = None
     # PoC-флаг: симулировать недоступность LLM на draft-пути
     force_llm_down: bool = False
 
@@ -39,6 +44,9 @@ class Classification(BaseModel):
     method: str  # rules | mock_ml
     pii_suspected: bool = False
     injection_suspected: bool = False
+    toxicity_suspected: bool = False
+    multi_intent: bool = False
+    topics_hit: list[str] = Field(default_factory=list)
 
 
 class RetrievalHit(BaseModel):
@@ -50,11 +58,12 @@ class RetrievalHit(BaseModel):
 
 class ProcessResult(BaseModel):
     ticket_id: str
+    locale: str  # ru | en | unknown (PoC heuristic or explicit)
     classification: Classification
     retrieval: list[RetrievalHit]
     decision: Decision
     reason: str
-    path: str  # happy | fallback_risky | degraded_no_llm
+    path: str  # happy | fallback_risky | degraded_no_llm | reject_toxic | burst_incident
     # sync budget: classify + retrieve + policy ONLY (<500ms contract)
     latency_ms_sync: float
     # draft path measured separately (async in production)
@@ -62,4 +71,5 @@ class ProcessResult(BaseModel):
     draft_status: DraftStatus
     draft_reply: Optional[str]
     llm_used: bool
+    incident_id: Optional[str] = None
     log_id: str

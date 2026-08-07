@@ -88,6 +88,136 @@ def main() -> None:
     assert down.decision.value == "suggest"
     assert down.latency_ms_sync < SYNC_BUDGET_MS
 
+    print("\n=== 5) MULTILINGUAL ===")
+    en_pw = _run(samples, "en_password")
+    en_bill = _run(samples, "en_billing_pii")
+    en_pw_status = "LIMIT"
+    if en_pw.classification.topic == "password_reset" and en_pw.decision.value == "auto_reply":
+        en_pw_status = "ok (unexpectedly strong rules)"
+    else:
+        limits.append(
+            "LIMIT: RU topic rules miss EN access request (locale detected, no true multilingual classify/KB)"
+        )
+    print(
+        f"- en_password: decision={en_pw.decision.value} "
+        f"topic={en_pw.classification.topic} locale={en_pw.locale} "
+        f"sync_ms={en_pw.latency_ms_sync} => {en_pw_status}"
+    )
+    en_bill_status = "ok"
+    if en_bill.decision.value != "escalate" or not en_bill.classification.pii_suspected:
+        en_bill_status = "FAIL"
+    if en_bill.locale != "en":
+        en_bill_status = "FAIL"
+    if en_bill.latency_ms_sync >= SYNC_BUDGET_MS:
+        en_bill_status = "FAIL"
+    print(
+        f"- en_billing_pii: decision={en_bill.decision.value} "
+        f"pii={en_bill.classification.pii_suspected} locale={en_bill.locale} "
+        f"sync_ms={en_bill.latency_ms_sync} => {en_bill_status}"
+    )
+    assert en_pw_status in {"LIMIT", "ok (unexpectedly strong rules)"}
+    assert en_bill_status == "ok", (
+        f"en_billing_pii expected escalate+PII+locale=en, got {en_bill_status}"
+    )
+
+    print("\n=== 6) TOXICITY / REJECT_REWRITE ===")
+    toxic = _run(samples, "toxic_ru")
+    toxic_status = "ok"
+    if toxic.decision.value != "reject_rewrite":
+        toxic_status = "FAIL"
+    if not toxic.classification.toxicity_suspected:
+        toxic_status = "FAIL"
+    if toxic.draft_status != DraftStatus.READY or not toxic.draft_reply:
+        toxic_status = "FAIL"
+    if toxic.llm_used:
+        toxic_status = "FAIL"
+    if toxic.path != "reject_toxic":
+        toxic_status = "FAIL"
+    if toxic.latency_ms_sync >= SYNC_BUDGET_MS:
+        toxic_status = "FAIL"
+    # Option B: topic still classified for audit (password_reset expected here)
+    print(
+        f"- toxic_ru: decision={toxic.decision.value} "
+        f"topic={toxic.classification.topic} "
+        f"toxicity={toxic.classification.toxicity_suspected} "
+        f"llm_used={toxic.llm_used} sync_ms={toxic.latency_ms_sync} => {toxic_status}"
+    )
+    assert toxic_status == "ok", f"toxic_ru failed: {toxic_status}"
+
+    print("\n=== 7) COMPLEX TEXT ===")
+    multi = _run(samples, "multi_intent")
+    multi_status = "ok"
+    if multi.decision.value != "escalate" or not multi.classification.multi_intent:
+        multi_status = "FAIL"
+    if multi.latency_ms_sync >= SYNC_BUDGET_MS:
+        multi_status = "FAIL"
+    print(
+        f"- multi_intent: decision={multi.decision.value} "
+        f"topic={multi.classification.topic} "
+        f"topics_hit={multi.classification.topics_hit} "
+        f"multi={multi.classification.multi_intent} "
+        f"sync_ms={multi.latency_ms_sync} => {multi_status}"
+    )
+    assert multi_status == "ok"
+
+    sarcasm = _run(samples, "sarcasm_billing")
+    sarcasm_status = "LIMIT"
+    sarcasm_note = (
+        "LIMIT: sarcasm/indirect money ask may miss billing_payment topic (rules baseline)"
+    )
+    if (
+        sarcasm.classification.topic == "billing_payment"
+        and sarcasm.decision.value == "escalate"
+    ):
+        sarcasm_status = "ok (rules caught billing)"
+    elif sarcasm.decision.value == "auto_reply":
+        sarcasm_status = "FAIL"
+    else:
+        limits.append(sarcasm_note)
+    if sarcasm.latency_ms_sync >= SYNC_BUDGET_MS:
+        sarcasm_status = "FAIL"
+    print(
+        f"- sarcasm_billing: decision={sarcasm.decision.value} "
+        f"topic={sarcasm.classification.topic} "
+        f"sync_ms={sarcasm.latency_ms_sync} => {sarcasm_status}"
+    )
+    assert sarcasm_status in {"LIMIT", "ok (rules caught billing)"}
+
+    mixed = _run(samples, "mixed_locale")
+    mixed_status = "ok"
+    if mixed.locale != "unknown":
+        mixed_status = "FAIL"
+    if mixed.decision.value == "auto_reply":
+        mixed_status = "FAIL"
+    if mixed.latency_ms_sync >= SYNC_BUDGET_MS:
+        mixed_status = "FAIL"
+    print(
+        f"- mixed_locale: decision={mixed.decision.value} "
+        f"locale={mixed.locale} topic={mixed.classification.topic} "
+        f"sync_ms={mixed.latency_ms_sync} => {mixed_status}"
+    )
+    assert mixed_status == "ok", f"mixed_locale failed: {mixed_status}"
+
+    print("\n=== 8) BURST / INCIDENT ===")
+    burst = _run(samples, "outage_burst")
+    burst_status = "ok"
+    if burst.path != "burst_incident" or burst.decision.value != "suggest":
+        burst_status = "FAIL"
+    if burst.llm_used or not burst.draft_reply:
+        burst_status = "FAIL"
+    if burst.incident_id != "INC-42":
+        burst_status = "FAIL"
+    if "INC-42" not in (burst.draft_reply or ""):
+        burst_status = "FAIL"
+    if burst.latency_ms_sync >= SYNC_BUDGET_MS:
+        burst_status = "FAIL"
+    print(
+        f"- outage_burst: decision={burst.decision.value} path={burst.path} "
+        f"incident_id={burst.incident_id} llm_used={burst.llm_used} "
+        f"sync_ms={burst.latency_ms_sync} => {burst_status}"
+    )
+    assert burst_status == "ok", f"outage_burst failed: {burst_status}"
+
     print("\nOK: smoke passed (with known limits)" if limits else "\nOK: smoke passed")
     for note in limits:
         print(f"  noted: {note}")

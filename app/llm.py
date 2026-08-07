@@ -43,3 +43,15 @@ def template_draft(hits: list[RetrievalHit], topic: str) -> str:
         f"[degraded template] No template for topic '{topic}'. "
         "Ticket routed to operator."
     )
+
+
+def burst_incident_template(incident_id: str, hits: list[RetrievalHit]) -> str:
+    """Массовый инцидент: один status-текст на тысячи тикетов, без LLM."""
+    status_url = "https://status.example"
+    kb_hint = hits[0].snippet if hits else "Мы уже разбираем массовый сбой."
+    return (
+        f"[incident status template] Инцидент {incident_id}.\n"
+        f"{kb_hint}\n"
+        f"Актуальный статус: {status_url}\n"
+        "Ответ без LLM (burst/dedup mode). Если проблема останется после восстановления — напишите снова."
+    )

@@ -9,3 +9,5 @@
 Сознательно вырезали из скоупа: обучение классификатора, embeddings/vector DB, внешний LLM API, Docker/K8s, UI оператора, нагрузочный тест пика 10–20k/10 мин — это не требуется ТЗ за 4 часа и мешало бы компактной защите.
 
 Итог скоупа: работающий rules-baseline PoC + обязательные документы с явными компромиссами; история коммитов отражает этот порядок решений.
+
+После doc-pack прогнали stress-test системы: мультиязык (locale + EN LIMIT), toxicity→reject_rewrite, multi-intent/mixed locale, burst по incident_id, контракт KB owner/updated_at — зафиксировали в коде, smoke и docs одним коммитом.

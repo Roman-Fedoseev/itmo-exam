@@ -21,8 +21,10 @@
 ## Продуктовые / бизнес (см. также product.md)
 
 - automation rate **только в safe-категориях** (North Star-связанная)
-- reopen rate, CSAT, SLA breach (first response 15 мин)
+- reopen rate, CSAT, SLA breach (first response 15 мин) — **в разрезе channel** и **locale**
 - доля escalate (резкий рост без инцидента = сигнал)
+- reopen с причиной / тегом **wrong KB instruction** (сигнал гнилой статьи)
+- доля тикетов в `burst_incident` / с `incident_id` во время пика (ожидаемо↑ при outage)
 
 ## Стартовые алерты
 
@@ -34,6 +36,8 @@
 | reopen auto-когорты &gt; baseline+3pp | откат auto → suggest |
 | cost LLM / день &gt; budget | throttle drafts, больше шаблонов |
 | доля unknown/low-conf резко↑ | проверить drift / инцидент формулировок |
+| reopen wrong-instruction↑ по одной KB-статье | снять статью с auto, review owner |
+| outage spike без роста `incident_id`/templates | проверить dedup/burst wiring; иначе LLM cost взлетит |
 
 ## Деградация модели vs изменение потока (drift)
 

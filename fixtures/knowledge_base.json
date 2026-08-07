@@ -3,30 +3,40 @@
     "id": "kb-password-reset",
     "title": "Сброс пароля",
     "body": "Откройте «Забыли пароль» на экране входа, укажите email и следуйте ссылке из письма. Ссылка действует 30 минут. Если письма нет — проверьте «Спам».",
-    "tags": ["password_reset", "faq_general"]
+    "tags": ["password_reset", "faq_general"],
+    "owner": "support-access",
+    "updated_at": "2026-07-01"
   },
   {
     "id": "kb-billing",
     "title": "Проблемы с оплатой",
     "body": "Проверьте статус платежа в разделе «Подписка». При спорном списании оператор запросит последние 4 цифры карты и время операции. Авто-возврат без проверки запрещён.",
-    "tags": ["billing_payment"]
+    "tags": ["billing_payment"],
+    "owner": "support-billing",
+    "updated_at": "2026-06-15"
   },
   {
     "id": "kb-outage",
     "title": "Сервис недоступен",
     "body": "Мы зафиксировали массовый инцидент. Статус: https://status.example. Обновите страницу через 10–15 минут. Компенсации рассматриваются после восстановления.",
-    "tags": ["service_outage"]
+    "tags": ["service_outage"],
+    "owner": "sre-comms",
+    "updated_at": "2026-08-01"
   },
   {
     "id": "kb-faq-profile",
     "title": "Где изменить профиль",
     "body": "Профиль → Настройки → Личные данные. Email меняется только после подтверждения ссылкой.",
-    "tags": ["faq_general"]
+    "tags": ["faq_general"],
+    "owner": "support-access",
+    "updated_at": "2026-05-20"
   },
   {
     "id": "kb-account-delete",
     "title": "Удаление аккаунта",
     "body": "Удаление аккаунта необратимо и выполняется только после проверки личности оператором. Автоматическое удаление по сообщению в тикете запрещено.",
-    "tags": ["account_delete"]
+    "tags": ["account_delete"],
+    "owner": "trust-safety",
+    "updated_at": "2026-04-10"
   }
 ]

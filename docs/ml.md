@@ -14,9 +14,10 @@ Classify = keyword rules. Retrieve = пересечение слов с KB. Draf
 | 1 | Topic / intent | понять тему тикета |
 | 2 | Risk / sensitive | понять, можно ли авто |
 | 3 | PII / injection hints | не слать опасное в авто/LLM |
-| 4 | Retrieval (KB / similar) | найти опору для ответа |
-| 5 | Draft generation | текст ответа / черновик оператору |
-| 6 | Policy | не модель: регламент auto/suggest/escalate |
+| 4 | Toxicity / abuse | отсеять мат/оскорбления до FAQ-авто |
+| 5 | Retrieval (KB / similar) | найти опору для ответа |
+| 6 | Draft generation | текст ответа / черновик оператору |
+| 7 | Policy | не модель: auto/suggest/escalate/reject_rewrite |
 
 ## Что чем решаем
 
@@ -24,8 +25,9 @@ Classify = keyword rules. Retrieve = пересечение слов с KB. Draf
 |--------|--------------|---------|------------|
 | topic/risk | rules | классическая ML (logreg/boosting на TF-IDF или маленький encoder) | нужно &lt;500 ms, дёшево на пике |
 | PII | regex | regex + NER (открытая/внутренняя) | до внешнего LLM |
+| toxicity | hard list | list → tiny classifier (distil/BERT-класс) | sync &lt;500 ms; не LLM; не escalate |
 | retrieval | keyword overlap | BM25 и/или embeddings + ANN | перефразы rules/keyword не тянут (см. LIMIT в smoke) |
-| draft | mock / template | LLM API + grounding на KB | качество текста; async |
+| draft | mock / template / rewrite template | LLM API + grounding на KB | качество текста; async |
 | low confidence | пороги + escalate | те же пороги после калибровки | безопаснее «угадать» |
 
 ## Где LLM нужен / не нужен
@@ -57,6 +59,33 @@ Classify = keyword rules. Retrieve = пересечение слов с KB. Draf
 - Лейблы: topic, risk_level, `auto_ok` (да/нет).  
 - Двойная разметка на спорных + аудит ошибок shadow-режима операторами.  
 - Регулярный refresh при drift (новые продукты/формулировки).
+
+## Мультиязычность
+
+Задачи topic / risk / retrieve / draft зависят от языка; **policy** (auto/suggest/escalate на PII/billing) — нет.
+
+| Слой | PoC | Target |
+|------|-----|--------|
+| locale | эвристика cyr/lat или поле тикета | locale канала + lang-detect |
+| topic/risk | RU keyword rules (EN topic-слова убраны намеренно) | multilingual encoder или модели на locale |
+| retrieve | RU KB + keyword | индекс/статьи per locale или multilingual embeddings |
+| draft | RU mock/template | LLM: «отвечай на языке тикета» + локальные шаблоны |
+
+EN access без русских ключей → unknown/escalate: **безопасно, но не автоматизируем** (smoke LIMIT `en_password`).  
+Карта/PII ловятся regex независимо от языка (`en_billing_pii`).  
+Смешанный RU+EN → `unknown` locale (эвристика доли cyr/lat); не auto (`mixed_locale` в smoke).  
+Не масштабируем if-ы/словари на каждый язык.
+
+## Сложные тексты (где baseline врёт)
+
+| Кейс | PoC | Target |
+|------|-----|--------|
+| Multi-intent | ≥2 topic hits → `multi_intent`, escalate, risk = max | multi-label classifier / вторичные intents |
+| Сарказм («всё супер, компенсируйте») | часто miss billing → LIMIT в smoke | размеченные adversarial + модель/LLM-assist только offline/eval |
+| Перефраз / EN | LIMIT (уже в smoke) | embeddings + multilingual encode |
+| Outage без статуса инцидента | suggest/template, не auto-close денег | связь с status page / incident id |
+
+Правило защиты: на сомнении — escalate/suggest, не «дотянуть» keyword-костылями до auto.
 
 ## Низкая уверенность
 

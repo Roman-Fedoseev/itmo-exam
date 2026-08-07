@@ -46,5 +46,48 @@
     "channel": "chat",
     "subject": "Доступ",
     "body": "Личный кабинет после смены телефона не открывается. Письмо со ссылкой пришло, но ссылка уже недействительна. Нужна помощь с доступом без потери данных."
+  },
+  "en_password": {
+    "ticket_id": "T-6101",
+    "channel": "web",
+    "subject": "Cannot sign in",
+    "body": "I cannot access my account after changing my phone. The email link expired and I still need help getting into my personal cabinet without losing data."
+  },
+  "en_billing_pii": {
+    "ticket_id": "T-6202",
+    "channel": "email",
+    "subject": "Double charge",
+    "body": "Double charge on card 4111 1111 1111 1111 for 1990. Please refund immediately."
+  },
+  "toxic_ru": {
+    "ticket_id": "T-7001",
+    "channel": "chat",
+    "subject": "Пароль",
+    "body": "Вы идиоты и уроды, забыл пароль, сделайте сброс срочно блять."
+  },
+  "multi_intent": {
+    "ticket_id": "T-8001",
+    "channel": "email",
+    "subject": "Пароль и списание",
+    "body": "Забыл пароль, нужен сброс чтобы войти. И ещё с карты списали дважды непонятный платеж — разберитесь."
+  },
+  "sarcasm_billing": {
+    "ticket_id": "T-8002",
+    "channel": "chat",
+    "subject": "Всё супер",
+    "body": "Всё работает замечательно, вы лучшие. Прошу компенсировать вчерашнее недоразумение с подпиской — очень на вас рассчитываю."
+  },
+  "mixed_locale": {
+    "ticket_id": "T-8003",
+    "channel": "web",
+    "subject": "Login help",
+    "body": "Hello, не могу открыть личный кабинет after phone change. Email link already expired — нужна помощь с доступом please."
+  },
+  "outage_burst": {
+    "ticket_id": "T-9001",
+    "channel": "mobile",
+    "subject": "Сервис лежит",
+    "body": "Приложение не работает уже час, ошибка 503, это массовая авария? Когда почините?",
+    "incident_id": "INC-42"
   }
 }

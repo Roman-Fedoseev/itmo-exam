@@ -35,6 +35,10 @@
 - **AI напомнил:** PII во внешний LLM, prompt injection, пики.
 - **Сам:** escalate на injection/PII; degrade auto→suggest; в smoke явный LIMIT на перефразе.
 
+### 7. Stress-test после doc-pack
+- **AI помог:** разложить multilingual / toxicity funnel / multi-intent / burst-dedup и куда писать в docs vs код.
+- **Сам:** toxicity = reject_rewrite (не escalate); EN topic-слова убрали для честного LIMIT; burst через `incident_id`, не через «магический» флаг; smoke с LIMIT/ok.
+
 ## Примеры ошибок AI и как чинили
 
 | Ошибка / совет AI | Как заметили | Что сделали |
