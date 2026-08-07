@@ -11,3 +11,5 @@
 Итог скоупа: работающий rules-baseline PoC + обязательные документы с явными компромиссами; история коммитов отражает этот порядок решений.
 
 После doc-pack прогнали stress-test системы: мультиязык (locale + EN LIMIT), toxicity→reject_rewrite, multi-intent/mixed locale, burst по incident_id, контракт KB owner/updated_at — зафиксировали в коде, smoke и docs одним коммитом.
+
+Добили процессные риски в docs (без нового кода): suggest-дисциплина / bias логов, DPA+PII→LLM, ложный успех automation↑ при CSAT↓, метрики send-as-is и разрезы channel/locale.

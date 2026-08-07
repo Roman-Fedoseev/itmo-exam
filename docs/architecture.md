@@ -119,9 +119,11 @@ flowchart TD
 ## Human-in-the-loop
 
 - HIGH / PII / injection / low conf / unknown / multi-intent / unknown locale → только оператор.  
-- Suggest: оператор видит draft + KB snippets.  
+- Suggest: оператор видит draft + KB snippets + risk; **не** «одна кнопка Send без контекста».  
+- Дисциплина suggest: выборочный QA, логировать edit vs send-as-is (см. risks-and-ops / monitoring).  
 - Auto — только allowlist + высокие пороги + kill-switch.  
-- Несколько тем в одном тикете: **max(risk)**, не auto по password-части.
+- Несколько тем в одном тикете: **max(risk)**, не auto по password-части.  
+- Внешний LLM (target): DPA + redact PII до промпта; Decision Service не заменяет юридический контур.
 
 ## Fallback / peak / dedup
 

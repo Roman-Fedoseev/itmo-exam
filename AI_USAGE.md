@@ -39,6 +39,10 @@
 - **AI помог:** разложить multilingual / toxicity funnel / multi-intent / burst-dedup и куда писать в docs vs код.
 - **Сам:** toxicity = reject_rewrite (не escalate); EN topic-слова убрали для честного LIMIT; burst через `incident_id`, не через «магический» флаг; smoke с LIMIT/ok.
 
+### 8. Процесс и ложный успех метрик
+- **AI:** черновики про HITL discipline, training bias, DPA, anti-pattern automation↑/CSAT↓.
+- **Сам:** оставил это в docs (без фейкового кода UI); stop-условия пилота дополнил явным «ложным успехом».
+
 ## Примеры ошибок AI и как чинили
 
 | Ошибка / совет AI | Как заметили | Что сделали |

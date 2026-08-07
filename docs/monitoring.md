@@ -25,6 +25,19 @@
 - доля escalate (резкий рост без инцидента = сигнал)
 - reopen с причиной / тегом **wrong KB instruction** (сигнал гнилой статьи)
 - доля тикетов в `burst_incident` / с `incident_id` во время пика (ожидаемо↑ при outage)
+- **suggest send-as-is rate** (доля отправок без правки) — высокий % при CSAT↓ = слепой Send
+- edit distance / доля существенных правок draft (качество suggest)
+
+## Ложный успех (anti-pattern)
+
+| Картина | Вердикт |
+|---------|---------|
+| automation↑, CSAT↓ или reopen↑ | пилот **провален** → kill-switch / откат auto |
+| automation↑ только на одном locale/channel, на других CSAT↓ | не раскатывать глобально; чинить locale/channel |
+| suggest acceptance↑, CSAT suggest-когорты↓ | UI/дисциплина HITL, не «модель стала лучше» |
+| LLM cost↓ за счёт шаблонов, но wrong-instruction↑ | экономия ценой гнилой KB — откатить статьи с auto |
+
+North Star без guardrails читать нельзя.
 
 ## Стартовые алерты
 
@@ -34,6 +47,8 @@
 | LLM errors/timeouts &gt; 20% | открыть circuit → templates, auto→suggest |
 | auto@HIGH &gt; 0 | немедленный kill-switch auto |
 | reopen auto-когорты &gt; baseline+3pp | откат auto → suggest |
+| CSAT auto/suggest-когорты &lt; порога при automation↑ | kill-switch; разбор ложного успеха |
+| suggest send-as-is↑ + CSAT↓ | усилить HITL UI/QA, временно сузить suggest |
 | cost LLM / день &gt; budget | throttle drafts, больше шаблонов |
 | доля unknown/low-conf резко↑ | проверить drift / инцидент формулировок |
 | reopen wrong-instruction↑ по одной KB-статье | снять статью с auto, review owner |
@@ -65,4 +80,5 @@
 3. handle time / очередь на FAQ↓  
 4. audit доступен для разбора ошибок  
 
-Если automation↑, а reopen/CSAT ломаются — задача **не** решена, откатываем auto.
+Если automation↑, а reopen/CSAT ломаются — задача **не** решена, откатываем auto.  
+То же для suggest: рост «отправли черновик как есть» без удержания CSAT — это не эффективность, а потеря контроля HITL.

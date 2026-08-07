@@ -60,6 +60,11 @@ Classify = keyword rules. Retrieve = пересечение слов с KB. Draf
 - Двойная разметка на спорных + аудит ошибок shadow-режима операторами.  
 - Регулярный refresh при drift (новые продукты/формулировки).
 
+### Bias: нельзя учиться только на suggest-правках
+
+Операторы правят в основном сложное; «отправили как есть» и простые FAQ реже попадают в обучающую выборку → перекос порогов/тем.  
+Митигация: стратифицированный срез (в т.ч. accepted-as-is), shadow-agreement, отдельный eval на safe-темах; не фитить модель только под edit-логи.
+
 ## Мультиязычность
 
 Задачи topic / risk / retrieve / draft зависят от языка; **policy** (auto/suggest/escalate на PII/billing) — нет.
@@ -97,8 +102,8 @@ EN access без русских ключей → unknown/escalate: **безоп�
 
 - Offline: F1, confusion по опасным темам, false-auto@HIGH=0.  
 - Online shadow: agreement с решением оператора.  
-- Продукт: automation (safe only), reopen, CSAT, SLA.  
-- Stop: см. product.md / SELF_REVIEW (reopen/CSAT/критический инцидент).
+- Продукт: automation (safe only), reopen, CSAT, SLA — **вместе**, не automation в одиночку.  
+- Stop: см. product.md / SELF_REVIEW / monitoring (reopen/CSAT/критический инцидент / слепой suggest).
 
 ## PoC → target
 

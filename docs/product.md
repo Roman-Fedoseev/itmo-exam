@@ -46,6 +46,8 @@
 
 - **North Star:** доля тикетов, закрытых без оператора **в safe-категориях**, при неухудшении CSAT.
 - **Guardrails:** reopen ≤ 9%+2pp; CSAT ≥ 4.1; SLA breach (first response 15 мин) не хуже baseline; auto@HIGH = 0.
+- **Ложный успех:** automation↑ при CSAT↓/reopen↑ — стоп пилота, не «успех бота». Смотрим метрики в разрезе channel/locale.
+- **Suggest-дисциплина:** черновик в UI обязан показывать риск и KB; высокий send-as-is при падении CSAT — сигнал слепого Send, чиним процесс, не только модель.
 
 ## Расчёт эффекта MVP (assumptions явны)
 
@@ -67,6 +69,7 @@ Assumptions: пилот = 1% дневного потока на 2 safe-тема�
 | Milestone | Срок | Кто |
 |-----------|------|-----|
 | Shadow: логируем decision, оператор как раньше | 2–3 нед | ML + backend + разметка |
-| Suggest: черновик в UI | 3–4 нед | backend + ops lead |
+| Suggest: черновик в UI + QA выборка правок | 3–4 нед | backend + ops lead |
 | Auto на password/FAQ + kill-switch | 2–4 нед | ML + backend + support QA |
 | Burst mode (шаблоны outage, LLM throttle) | параллельно/после | backend + SRE/ops |
+| DPA/регион + redact PII до внешнего LLM | до включения реального draft API | legal + backend |
