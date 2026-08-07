@@ -1,8 +1,9 @@
-# Support ticket routing PoC (MVP)
+# Support ticket routing PoC
 
-Минимальный прототип: по тексту тикета выбрать маршрут `auto_reply` / `suggest` / `escalate`.
+Прототип маршрутизации тикетов: `auto_reply` / `suggest` / `escalate`.
 
-Сейчас без обучения моделей: правила по ключевым словам + поиск статьи в локальной KB + простой черновик ответа.
+Сейчас без обучения моделей: правила по словам + поиск в локальной KB + заглушка текста ответа.
+Sync-путь (тема/риск/маршрут) отдельно от draft; ориентир sync &lt; 500 ms.
 
 ## Запуск
 
@@ -12,15 +13,24 @@ python scripts/smoke_demo.py
 uvicorn app.main:app --reload --port 8000
 ```
 
-- `POST /demo/happy` — типичный сброс пароля  
-- `POST /demo/risky` — оплата + персональные данные → оператору  
-- `POST /tickets/process` — свой тикет  
+Демо: `/demo/happy`, `/demo/risky`, `/demo/llm-down`, `/demo/outage`, список `/demo/fixtures`.
 
-## Что уже есть / что дальше
+## Сценарии
 
-| Сейчас (MVP) | Дальше (идеал / прод) |
-|--------------|------------------------|
-| Правила по словам | Обученный классификатор темы/риска |
-| Поиск KB по словам | Семантический поиск (embeddings) |
-| Заглушка текста ответа | LLM + база знаний, отдельная очередь |
-| 2 демо-кейса | Больше кейсов, мониторинг, пилот с операторами |
+| Кейс | Ожидание |
+|------|----------|
+| `happy` | пароль → auto/suggest + draft |
+| `risky` | оплата + PII → escalate |
+| `happy` + LLM down | draft=degraded, auto→suggest |
+| `faq` / `outage` | suggest (или escalate), не слепой auto на деньгах |
+| `account_delete` / `unknown` / `injection` | escalate |
+| `paraphrase_access` | **LIMIT**: похоже на доступ/пароль, но без ключевых слов — rules часто не дают auto |
+
+## Real vs target
+
+| Сейчас | В проде |
+|--------|---------|
+| Rules classify | Обученный классификатор |
+| Keyword KB | Embeddings / BM25+vector |
+| Mock draft / template | LLM + очередь + circuit breaker |
+| Мало mock-тикетов | Разметка + мониторинг + shadow→suggest→auto |
